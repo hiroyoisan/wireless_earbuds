@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireless Earbuds — AI Workflow Showcase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#060A16;
+    --panel:#0C1226;
+    --surface:#111933;
+    --ink:#EAF0FA;
+    --ink-soft:#93A1C4;
+    --ink-dim:#5C6A8C;
+    --cyan:#22D9E6;
+    --violet:#7C5CFF;
+    --line:rgba(255,255,255,0.09);
+    --glass:rgba(255,255,255,0.04);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'IBM Plex Sans Thai', sans-serif;
+    font-weight:400; line-height:1.7; -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  h1,h2,h3,h4{font-family:'IBM Plex Sans Thai', sans-serif; margin:0; font-weight:700; letter-spacing:-0.01em;}
+  p{margin:0;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 32px;}
+  @media (max-width:640px){.wrap{padding:0 20px;}}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:rgba(34,217,230,0.3); border-radius:10px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+
+  /* ---------- NAV BAR ---------- */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(6,10,22,0.88); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1120px; margin:0 auto; padding:16px 32px;
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+  }
+  .brand{
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:14px;
+    display:flex; align-items:center; gap:8px; white-space:nowrap;
+  }
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan); box-shadow:0 0 10px var(--cyan);}
+  nav.links{display:flex; gap:22px; overflow-x:auto; scrollbar-width:none;}
+  nav.links::-webkit-scrollbar{display:none;}
+  nav.links a{
+    font-size:13.5px; color:var(--ink-soft); white-space:nowrap;
+    padding:6px 0; border-bottom:2px solid transparent; transition:all .2s;
+  }
+  nav.links a:hover{color:var(--cyan); border-color:var(--cyan);}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative; overflow:hidden;
+    background:radial-gradient(ellipse 80% 60% at 75% 20%, #101c3d 0%, var(--bg) 70%);
+    padding:100px 0 80px; border-bottom:1px solid var(--line);
+  }
+  .hero-lines{position:absolute; inset:0; opacity:.35; pointer-events:none;}
+  .hero-inner{position:relative; z-index:2; display:grid; grid-template-columns:1.15fr 0.85fr; gap:48px; align-items:center;}
+  @media (max-width:860px){.hero-inner{grid-template-columns:1fr;}}
+  .kicker{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--violet);
+    display:inline-flex; align-items:center; gap:10px; margin-bottom:18px;
+  }
+  .kicker::before{content:""; width:20px; height:1px; background:var(--violet);}
+  .hero h1{font-size:clamp(46px,6.5vw,76px); line-height:1.02; color:#fff; text-shadow:0 0 40px rgba(34,217,230,0.22);}
+  .hero .sub{margin-top:20px; font-size:17.5px; color:var(--ink-soft); max-width:48ch; font-weight:300;}
+  .hero .byline{
+    margin-top:36px; padding:16px 20px; border-radius:12px;
+    background:var(--glass); border:1px solid var(--line);
+    font-size:13.5px; color:var(--ink-soft); display:inline-block;
+  }
+  .hero .byline strong{color:#fff; font-weight:600;}
+
+  .hero-video-container {
+    width: 100%;
+    max-width: 480px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--cyan);
+    box-shadow: 0 0 40px rgba(34,217,230,0.3);
+    background: #000;
+  }
+  .hero-video-container video {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  /* ---------- SHARED COMPONENTS ---------- */
+  .glass{
+    background:var(--glass); backdrop-filter:blur(14px);
+    border:1px solid var(--line); border-radius:var(--radius);
+  }
+  .glow-cyan{border-color:rgba(34,217,230,0.35); box-shadow:0 0 30px rgba(34,217,230,0.08);}
+  .glow-violet{border-color:rgba(124,92,255,0.35); box-shadow:0 0 30px rgba(124,92,255,0.08);}
+
+  .chip{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; padding:4px 10px; border-radius:20px;
+    display:inline-flex; align-items:center; gap:6px; width:fit-content;
+  }
+  .chip .p{width:6px;height:6px;border-radius:50%;}
+  .chip.c-cyan{background:rgba(34,217,230,0.1); color:var(--cyan);}
+  .chip.c-violet{background:rgba(124,92,255,0.12); color:#B7A8FF;}
+  .chip.c-cyan .p{background:var(--cyan);}
+  .chip.c-violet .p{background:var(--violet);}
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section.tool{padding:80px 0; border-bottom:1px solid var(--line);}
+  .tool-head{max-width:680px; margin-bottom:40px;}
+  .tool-num{font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--cyan); margin-bottom:8px; display:block;}
+  .tool-head h2{font-size:clamp(26px,3.5vw,36px); margin-bottom:10px;}
+  .tool-head p{color:var(--ink-soft); font-size:15px; max-width:60ch;}
+
+  .compare{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  @media (max-width:840px){.compare{grid-template-columns:1fr;}}
+
+  .card{padding:24px; display:flex; flex-direction:column; gap:14px; border-radius:var(--radius);}
+  .prompt-text{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; line-height:1.6;
+    padding:14px 16px; border-radius:10px; background:rgba(255,255,255,0.03); color:#C7D2EE;
+    border:1px solid rgba(255,255,255,0.05);
+  }
+  .result-desc{font-size:14px; color:var(--ink-soft);}
+  .visual-box{
+    border-radius:12px; overflow:hidden; min-height:160px;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05);
+  }
+
+  .reflect{
+    margin-top:24px; display:flex; gap:16px; align-items:flex-start;
+    padding:20px 22px; border-radius:12px;
+    background:linear-gradient(180deg, rgba(34,217,230,0.05), rgba(124,92,255,0.05));
+    border:1px solid rgba(124,92,255,0.2);
+  }
+  .reflect .icon{
+    flex-shrink:0; width:32px; height:32px; border-radius:8px;
+    background:rgba(34,217,230,0.1); display:flex; align-items:center; justify-content:center;
+  }
+  .reflect p{font-size:14px; color:var(--ink-soft);}
+  .reflect strong{color:#fff; font-weight:600;}
+
+  /* ---------- OVERVIEW GRID ---------- */
+  .overview{padding:80px 0 40px;}
+  .tool-grid{
+    margin-top:36px; display:grid; grid-template-columns:repeat(5,1fr); gap:14px;
+  }
+  @media (max-width:900px){.tool-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:520px){.tool-grid{grid-template-columns:1fr;}}
+  .tool-grid a{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:22px 18px; display:flex; flex-direction:column; gap:12px;
+    transition:transform .2s, border-color .2s;
+  }
+  .tool-grid a:hover{transform:translateY(-4px); border-color:var(--cyan);}
+  .tool-grid .ic{width:28px; height:28px;}
+  .tool-grid .t-name{font-weight:600; font-size:14.5px;}
+  .tool-grid .t-desc{font-size:12px; color:var(--ink-soft); line-height:1.5;}
+
+  /* ---------- DESMOS INTERACTIVE ---------- */
+  .anc-wrap{display:grid; grid-template-columns:1fr 320px; gap:20px;}
+  @media (max-width:900px){.anc-wrap{grid-template-columns:1fr;}}
+  .anc-graph{padding:20px; display:flex; flex-direction:column; gap:12px;}
+  .anc-graph canvas{width:100%; height:260px; border-radius:10px; background:#040711;}
+  .legend{display:flex; gap:18px; font-size:11.5px; color:var(--ink-soft);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .legend i{width:12px; height:3px; border-radius:2px; display:inline-block;}
+  .anc-controls{padding:22px; display:flex; flex-direction:column; gap:18px;}
+  .ctrl label{font-size:12.5px; color:var(--ink-soft); display:flex; justify-content:space-between; margin-bottom:6px;}
+  .ctrl label b{color:var(--cyan); font-family:'IBM Plex Mono',monospace;}
+  input[type=range]{
+    width:100%; -webkit-appearance:none; height:4px; border-radius:4px;
+    background:linear-gradient(90deg, var(--cyan), var(--violet)); outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:15px; height:15px; border-radius:50%;
+    background:#fff; border:2px solid var(--cyan); cursor:pointer; box-shadow:0 0 10px rgba(34,217,230,0.8);
+  }
+  .reduction{margin-top:auto; padding:16px; text-align:center; background:rgba(34,217,230,0.05); border:1px solid rgba(34,217,230,0.2); border-radius:12px;}
+  .reduction .val{font-family:'IBM Plex Mono',monospace; font-size:32px; color:var(--cyan); font-weight:700;}
+  .reduction .lbl{font-size:11px; color:var(--ink-soft); margin-top:2px;}
+
+  /* ---------- MERMAID ---------- */
+  .mermaid-panel{background:var(--panel); border-radius:12px; padding:24px; overflow:auto;}
+  .mermaid-panel .mermaid{display:flex; justify-content:center;}
+
+  /* ---------- LATEX MOCK ---------- */
+  .paper-mock{
+    background:#fff; border-radius:6px; padding:20px 22px;
+    font-size:11px; color:#232838; line-height:1.5;
+  }
+  .paper-mock .p-title{font-weight:700; font-size:12.5px; text-align:center; margin-bottom:4px;}
+  .paper-mock .p-author{text-align:center; font-size:9.5px; color:#666; margin-bottom:12px;}
+  table.codec-table{width:100%; border-collapse:collapse; font-size:10px; margin-top:8px;}
+  table.codec-table th{border-top:1.4px solid #232838; border-bottom:1px solid #232838; padding:4px 6px; text-align:left; font-weight:600;}
+  table.codec-table td{padding:4px 6px;}
+  table.codec-table tr:last-child td{border-bottom:1.4px solid #232838;}
+
+  /* ---------- NOTEBOOKLM MOCK ---------- */
+  .slide-mock{
+    aspect-ratio:16/9; border-radius:8px; position:relative; overflow:hidden;
+    display:flex; align-items:center; justify-content:center; width:100%;
+  }
+
+  /* ---------- PDF & EMBED HUB ---------- */
+  .embed-box{
+    min-height:480px; width:100%; border-radius:14px;
+    border:1.5px dashed rgba(255,255,255,0.18);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.015); padding:30px; text-align:center; gap:12px;
+  }
+  .embed-box svg{opacity:0.5; margin-bottom:6px;}
+  .embed-box .title{font-size:16px; font-weight:600;}
+  .embed-box .subtext{font-size:13px; color:var(--ink-soft); max-width:400px;}
+
+  footer{background:#040711; color:var(--ink-dim); padding:40px 0; border-top:1px solid var(--line);}
+  footer .wrap{display:flex; flex-wrap:wrap; justify-content:space-between; gap:16px; align-items:center;}
+  footer .f-brand{color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; font-size:13px;}
+  footer .f-meta{font-size:12.5px;}
+
+  ::selection{background:var(--cyan); color:#06131a;}
+</style>
+<link rel="stylesheet" href="showcase.css">
+</head>
+<body id="top"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#overview">ข้ามไปยังเนื้อหา</a>
+
+<!-- ---------- NAV ---------- -->
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand"><span class="dot"></span>WIRELESS EARBUDS · AI WORKFLOW</div>
+    <nav class="links" aria-label="เมนูหลัก">
+      <a href="#overview">ภาพรวม</a>
+      <a href="#imagegen">สร้างรูป AI</a>
+      <a href="#desmos">Desmos</a>
+      <a href="#mermaid">Mermaid</a>
+      <a href="#latex">LaTeX</a>
+      <a href="#notebooklm">NotebookLM</a>
+      <a href="#pdf-hub">PDF / Slides</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ---------- HERO ---------- -->
+<section class="hero">
+  <svg class="hero-lines" viewBox="0 0 1400 700" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="#22D9E6" stroke-width="1">
+      <path d="M-50,120 C 300,40 700,260 1450,90" opacity="0.2"/>
+      <path d="M-50,220 C 350,120 750,340 1450,190" opacity="0.14"/>
+    </g>
+    <g fill="none" stroke="#7C5CFF" stroke-width="1">
+      <path d="M-50,460 C 350,540 780,360 1450,480" opacity="0.16"/>
+    </g>
+  </svg>
+  <div class="wrap hero-inner">
+    <div>
+      <span class="kicker">TECH PRODUCT LAUNCH — AI WORKFLOW SHOWCASE</span>
+      <h1>Wireless<br><span>Earbuds.</span></h1>
+      <p class="sub">Turning Innovation Into Everyday Value. เอกสารนี้รวบรวมขั้นตอนการใช้เครื่องมือ AI 5 ชนิด เพื่อพัฒนาเนื้อหา ภาพ กราฟ แผนภาพ บทความ และสไลด์ของโปรเจกต์หูฟังไร้สาย</p>
+      <div class="hero-actions"><a class="button primary" href="#overview">สำรวจเวิร์กโฟลว์ <span>↗</span></a><a class="button" href="#desmos">ทดลองคลื่นเสียง <span>∿</span></a></div><div class="hero-stats"><span><b>05</b> AI tools</span><span><b>02</b> Prompt approaches</span><span><b>01</b> Connected workflow</span></div><div class="byline">
+        <strong>Mr. Hironobu Chaikasem</strong> · 2610717302048<br>
+        Computer Engineering and Artificial Intelligence
+      </div>
+    </div>
+    <div style="display:flex; justify-content:center;">
+      <div style="display:flex; justify-content:center;">
+      <div class="hero-image-container">
+        <img src="Gemini_Generated_Image_vy045vy045vy045v.jpg" alt="รูปภาพหูฟังไร้สาย" style="max-width: 100%; height: auto; border-radius: 12px;">
+      </div>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ---------- OVERVIEW ---------- -->
+<section class="overview" id="overview">
+  <div class="wrap">
+    <h2>ห้าเครื่องมือ AI หนึ่งเวิร์กโฟลว์ในการทำ Presentation</h2>
+    <p style="color:var(--ink-soft); font-size:15.5px; max-width:62ch; margin-top:10px;">ทุกเครื่องมือถูกทดลองสองรอบ — เริ่มจาก <span class="mono" style="color:var(--cyan);">zero-shot prompt</span> แล้วปรับแต่งด้วยบริบทและตัวอย่างที่ชัดเจนขึ้นเพื่อผลลัพธ์ที่ดีที่สุด</p>
+    <div class="tool-grid">
+      <a href="#imagegen">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#7C5CFF" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3"/></svg>
+        <span class="t-name">สร้างรูปด้วย AI</span>
+        <span class="t-desc">Zero-shot vs. context prompt สำหรับภาพโฆษณาสินค้า</span>
+      </a>
+      <a href="#desmos">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#22D9E6" stroke-width="1.8"><path d="M3 12c2-6 4-6 6 0s4 6 6 0 4-6 6 0"/></svg>
+        <span class="t-name">Desmos Calculator</span>
+        <span class="t-desc">สมการคลื่นเสียงสำหรับระบบตัดเสียงรบกวน ANC</span>
+      </a>
+      <a href="#mermaid">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#7C5CFF" stroke-width="1.8"><rect x="3" y="4" width="7" height="5" rx="1"/><rect x="14" y="4" width="7" height="5" rx="1"/><rect x="8" y="15" width="8" height="5" rx="1"/></svg>
+        <span class="t-name">Mermaid Diagram</span>
+        <span class="t-desc">Sequence Diagram แสดงการประมวลผล Bluetooth & DSP</span>
+      </a>
+      <a href="#latex">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#22D9E6" stroke-width="1.8"><path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M9 12h6M9 15.5h6"/></svg>
+        <span class="t-name">LaTeX (Overleaf)</span>
+        <span class="t-desc">บทความวิชาการรูปแบบ IEEE พร้อมตารางเปรียบเทียบ</span>
+      </a>
+      <a href="#notebooklm">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#7C5CFF" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        <span class="t-name">NotebookLM</span>
+        <span class="t-desc">สรุปแหล่งข้อมูลและออกแบบโครงสไลด์นำเสนอ</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 1. AI IMAGE GENERATION ===================== -->
+<section class="tool" id="imagegen">
+  <div class="wrap">
+    <div class="tool-head">
+      <span class="tool-num">01 — การสร้างรูปด้วย AI</span>
+      <h2>AI Image Generation</h2>
+      <p>ทดสอบว่าความเจาะจงของ prompt ส่งผลต่ออารมณ์ของภาพสินค้ามากแค่ไหน จากคำสั่งกว้างๆ ไปจนถึงคำสั่งระดับกำกับแสงและองค์ประกอบภาพ</p>
+    </div>
+    <div class="compare">
+      <div class="card glass">
+        <span class="chip c-cyan"><span class="p"></span>Zero-shot prompt</span>
+        <p class="prompt-text">"A picture of modern wireless earbuds."</p>
+        <div class="visual-box">
+          <img src="prompt 1.jpg" alt="Zero-shot prompt result" style="width: 100%; border-radius: 8px; display: block;">
+        </div>
+        <p class="result-desc">ได้ภาพหูฟังสีขาว/ดำ 3 แบบ ตรงตามคำในคำสั่ง แต่พื้นหลังเรียบธรรมดาแบบภาพสต็อกทั่วไป</p>
+      </div>
+      <div class="card glass glow-violet">
+        <span class="chip c-violet"><span class="p"></span>Context prompt</span>
+        <p class="prompt-text">"Commercial product screenshot of sleek matte-black wireless earbuds sitting inside an open minimalist charging case, floating in mid-air, neon blue and violet atmospheric backlighting, shallow depth of field, 8k resolution, highly detailed product photography."</p>
+        <div class="visual-box" style="background:linear-gradient(135deg,#150826,#061a2e);">
+          <img src="prompt 2.jpg" alt="Zero-shot prompt result" style="width: 100%; border-radius: 8px; display: block;">
+        </div>
+        <p class="result-desc">ได้ภาพหูฟังสีดำด้าน ลอยเหนือกล่องเคส แสงนีออนฟ้า-ม่วง มีมิติความชัดลึก ดูเหมือนภาพโฆษณามืออาชีพ</p>
+      </div>
+    </div>
+    <div class="reflect">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#22D9E6" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.5.4.6 1 .6 1.6V16h6v-.6c0-.6.1-1.2.6-1.6A6 6 0 0 0 12 3z"/></svg></span>
+      <p><strong>สะท้อนการเรียนรู้ —</strong> zero-shot ให้ภาพตรงตามคำศัพท์แต่ไม่อบอุ่นพอ ส่วน context prompt ที่ระบุแสง มุมกล้อง และความรู้สึกของภาพ ทำให้ AI เข้าใจ "โทน" ที่ต้องการได้อย่างชัดเจน</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 2. DESMOS ===================== -->
+<section class="tool" id="desmos">
+  <div class="wrap">
+    <div class="tool-head">
+      <span class="tool-num">02 — การอธิบายความสัมพันธ์ทางคณิตศาสตร์</span>
+      <h2>Desmos Calculator — ANC Wave Visualizer</h2>
+      <p>จำลองหลักการ Active Noise Cancellation (ANC) ด้วยสมการฟิสิกส์คลื่นเสียงรบกวนภายนอกและคลื่นต้านที่ถูกกลับเฟส</p>
+    </div>
+    <div class="anc-wrap">
+      <div class="glass glow-cyan anc-graph">
+        <canvas id="ancCanvas" width="700" height="260"></canvas>
+        <div class="legend">
+          <span><i style="background:#22D9E6;"></i>N(x) — เสียงรบกวนภายนอก</span>
+          <span><i style="background:#7C5CFF;"></i>Aₙ(x) — คลื่นต้านกลับเฟส</span>
+          <span><i style="background:#ffffff;"></i>R(x) — เสียงคงเหลือที่ผู้ใช้ได้ยิน</span>
+        </div>
+      </div>
+      <div class="glass anc-controls">
+        <div class="ctrl">
+          <label>Amplitude (A) <b id="ampVal">1.0</b></label>
+          <input type="range" id="ampSlider" min="0.2" max="2" step="0.1" value="1">
+        </div>
+        <div class="ctrl">
+          <label>Frequency (w) <b id="freqVal">4.0</b></label>
+          <input type="range" id="freqSlider" min="1" max="10" step="0.5" value="4">
+        </div>
+        <div class="ctrl">
+          <label>Phase shift (φ) <b id="phaseVal">0.00</b></label>
+          <input type="range" id="phaseSlider" min="0" max="6.283" step="0.05" value="0">
+        </div>
+        <div class="reduction">
+          <div class="val" id="reductionVal">100%</div>
+          <div class="lbl">Noise Reduction (φ → 0 คือหักล้างสมบูรณ์)</div>
+        </div>
+      </div>
+    </div>
+    <div class="compare" style="margin-top: 2.5rem;">
+  <!-- การ์ดซ้าย: Zero-shot prompt -->
+  <div class="card glass">
+    <span class="chip cyan">● Zero-shot prompt</span>
+    <p class="prompt-text">"ขอสมการกราฟคลื่นเสียง attenuation สำหรับหูฟังตัดเสียงรบกวน"</p>
+    
+    <div class="visual-box">
+      <!-- ใส่รูปภาพผลลัพธ์ที่นี่ -->
+      <img src="desmos 1.jpg" alt="Zero-shot Result" style="width: 100%; border-radius: 8px; display: block;">
+    </div>
+    
+    <p class="result-desc">ให้สมการ y = \sin(x) หรือ y = e^{-x} แบบโดดๆ ซึ่งไม่ได้แสดงการหักลบของคลื่นเสียง(Destructive Interference) หรือความถี่ของเสียงรบกวนอย่างชัดเจน </p>
+  </div>
+
+  <!-- การ์ดขวา: Context prompt -->
+  <div class="card glass">
+    <span class="chip purple">● Context prompt</span>
+    <p class="prompt-text">"ช่วยสร้างชุดสมการสำหรับ Desmos เพื่ออธิบายระบบ Active Noise Cancellation (ANC) ของ Wireless Earbuds โดยมี:
+1. คลื่นเสียงรบกวนภายนอก N(x) = A * sin(w * x)
+2. คลื่นต้าน phase-inverted A(x) = -A * sin(w * x - phi) โดยใช้ตัวแปร phi เป็น Slider
+3. คลื่นผลลัพธ์ R(x) = N(x) + A(x)
+ขอรูปแบบโค้ดสมการที่สามารถ Copy-Paste ลง Desmos ได้ทันที"</p>
+    
+    <div class="visual-box">
+      <!-- ใส่รูปภาพผลลัพธ์ที่นี่ -->
+      <img src="desmos 2.jpg" alt="Context Prompt Result" style="width: 100%; border-radius: 8px; display: block;">
+    </div>
+    
+    <p class="result-desc">ได้คำอธิบายที่เห็นภาพชัดเจน มีการเปรียบเปรย และเจาะจงกลุ่มเป้าหมาย</p>
+  </div>
+</div>
+    <div class="reflect">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#22D9E6" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.5.4.6 1 .6 1.6V16h6v-.6c0-.6.1-1.2.6-1.6A6 6 0 0 0 12 3z"/></svg></span>
+      <p><strong>สะท้อนการเรียนรู้ —</strong> คำสั่งที่ระบุตัวแปรและความหมายเชิงฟิสิกส์ (Phase shift / Latency) ช่วยให้ได้ชุดสมการที่ผูกกับ slider และจำลองการหักล้างของคลื่นเสียง (destructive interference) ได้จริง</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 3. MERMAID ===================== -->
+<section class="tool" id="mermaid">
+  <div class="wrap">
+    <div class="tool-head">
+      <span class="tool-num">03 — การสร้าง Diagrams จาก Mermaid Code</span>
+      <h2>Mermaid.ai Sequence Diagram</h2>
+      <p>แสดงผังการทำงานของสถาปัตยกรรมบลูทูธ และการประมวลผลสัญญาณดิจิทัล (DSP) ภายในหูฟังไร้สาย</p>
+    </div>
+    <div class="glass glow-violet mermaid-panel">
+      <div class="compare">
+  <!-- การ์ดซ้าย: Zero-shot prompt -->
+  <div class="card glass">
+    <span class="chip cyan">● Zero-shot prompt</span>
+    <p class="prompt-text">"เขียน Mermaid code แสดงการทำงานของ Wireless Earbuds"</p>
+    
+    <div class="visual-box">
+      <!-- ใส่รูปภาพผลลัพธ์ที่นี่ -->
+      <img src="mermaid 1.jpg" alt="Zero-shot Mermaid" style="width: 100%; border-radius: 8px; display: block;">
+    </div>
+    
+    <p class="result-desc">ได้ไดอะแกรมแบบง่าย เช่น [Phone] -> [Earbuds] -> [Speaker] ซึ่งขาดรายละเอียดเชิงเทคนิคและสถาปัตยกรรมบลูทูธ</p>
+  </div>
+
+  <!-- การ์ดขวา: Context prompt -->
+  <div class="card glass">
+    <span class="chip purple">● Context prompt</span>
+    <p class="prompt-text">"สร้างโค้ด Mermaid เป็น Flowchart แนวตั้ง อธิบายขั้นตอนการทำงานของระบบสั่งซื้อสินค้า โดยให้มีเงื่อนไข (Decision) และการแสดงสไตล์สีที่แตกต่างกัน"</p>
+    
+    <div class="visual-box">
+      <!-- ใส่รูปภาพผลลัพธ์ที่นี่ -->
+      <img src="mermaid 2.jpg" alt="Context Prompt Mermaid" style="width: 100%; border-radius: 8px; display: block;">
+    </div>
+    
+    <p class="result-desc">การระบุโครงสร้าง Sequence Diagram และระบุ Actor/Participant แต่ละฝ่าย ช่วยให้ได้โค้ด Mermaid ที่แสดงวิศวกรรมระบบ (Systems Architecture) ได้อย่างเป็นมืออาชีพ</p>
+  </div>
+
+      </div>
+    </div>
+    <div class="reflect">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#22D9E6" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.5.4.6 1 .6 1.6V16h6v-.6c0-.6.1-1.2.6-1.6A6 6 0 0 0 12 3z"/></svg></span>
+      <p><strong>สะท้อนการเรียนรู้ —</strong> การระบุประเภทแผนภาพ (sequenceDiagram) พร้อมชื่อ actor/participant แต่ละฝ่าย ช่วยให้ AI สร้างโค้ด Mermaid ที่สื่อสารสถาปัตยกรรมระบบได้ละเอียดกว่าแผนผังทั่วไปมาก</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 4. LATEX ===================== -->
+<section class="tool" id="latex">
+  <div class="wrap">
+    <div class="tool-head">
+      <span class="tool-num">04 — การสร้างบทความจาก LaTeX</span>
+      <h2>LaTeX · Overleaf IEEE Paper</h2>
+      <p>สร้างบทความวิชาการรูปแบบ IEEE พร้อมตารางเปรียบเทียบ Audio Codec แบบ booktabs ที่พร้อมสำหรับการ compile</p>
+    </div>
+    <div class="compare">
+      <div class="card glass">
+        <span class="chip c-cyan"><span class="p"></span>Zero-shot prompt</span>
+        <p class="prompt-text">"เขียนบทความเกี่ยวกับเทคโนโลยี Wireless Earbuds เป็น LaTeX ภาษาอังกฤษ ใส่ชื่อ Hironobu Chaikasem"</p>
+        <div class="paper-mock">
+          <div class="p-title">Evolution, Architecture, and Future Horizons of TWS Audio Systems</div>
+          <div class="p-author">Hironobu Chaikasem</div>
+          <div style="font-size:9.5px; color:#3a3f52;">Wireless earbuds, commonly referred to as True Wireless Stereo (TWS) devices, have transitioned from niche acoustic novelties to ubiquitous personal computing platforms...</div>
+        </div>
+        <p class="result-desc">ได้ไฟล์ .tex ที่เป็นบทความไหลต่อเนื่อง ไม่มีโครงสร้างตาราง การอ้างอิง หรือส่วนประกอบวิชาการสมบูรณ์</p>
+      </div>
+      <div class="card glass glow-cyan">
+        <span class="chip c-cyan"><span class="p"></span>Context prompt (IEEE Format)</span>
+        <p class="prompt-text">"ทำบทความวิชาการ IEEE Format หัวข้อ 'Evolution and Technical Architecture of Modern Wireless Earbuds' ใช้ documentclass(article), booktabs มี Abstract, Core Tech และตารางเปรียบเทียบ Codec (SBC, AAC, LDAC)..."</p>
+        <div class="paper-mock">
+          <div class="p-title">Evolution and Technical Architecture of Modern Wireless Earbuds</div>
+          <div class="p-author">Mr. Hironobu Chaikasem — Computer Engineering and Artificial Intelligence</div>
+          <table class="codec-table">
+            <tr><th>Parameter</th><th>SBC</th><th>AAC</th><th>LDAC</th></tr>
+            <tr><td>Max bitrate (kb/s)</td><td>328</td><td>320</td><td>990</td></tr>
+            <tr><td>Latency</td><td>Low</td><td>Medium</td><td>High</td></tr>
+            <tr><td>Power draw</td><td>Low</td><td>Medium</td><td>High</td></tr>
+          </table>
+        </div>
+        <p class="result-desc">ได้โค้ด LaTeX โครงสร้างวิจัยสมบูรณ์ พร้อมตารางเปรียบเทียบ นำไปวางใน Overleaf แล้ว Compile เป็น PDF ได้ทันที</p>
+      </div>
+    </div>
+    <div class="reflect">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#22D9E6" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.5.4.6 1 .6 1.6V16h6v-.6c0-.6.1-1.2.6-1.6A6 6 0 0 0 12 3z"/></svg></span>
+      <p><strong>สะท้อนการเรียนรู้ —</strong> การระบุ format (IEEE), package ที่ต้องใช้, และโครงสร้างตารางที่ต้องการ ทำให้ได้เอกสารวิชาการที่ครบองค์ประกอบและคอมไพล์ได้จริงโดยไม่ error</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 5. NOTEBOOK LM ===================== -->
+<section class="tool" id="notebooklm">
+  <div class="wrap">
+    <div class="tool-head">
+      <span class="tool-num">05 — การสร้าง Slide สรุปงานด้วย NotebookLM</span>
+      <h2>NotebookLM Executive Slide Blueprint</h2>
+      <p>สรุปข้อมูลงานวิจัยให้กลายเป็นสไลด์นำเสนอผู้บริหารที่กระชับและตรงประเด็น</p>
+    </div>
+    <div class="compare" style="margin-top: 2.5rem;">
+  <!-- การ์ดซ้าย: Zero-shot prompt -->
+  <div class="card glass">
+    <span class="chip cyan">● Zero-shot prompt</span>
+    <p class="prompt-text">"สรุปเอกสารนี้เพื่อเอาไปทำสไลด์ให้หน่อย"</p>
+    
+    <!-- กล่องแสดง Google Slides (บน) -->
+            <div class="visual-box" style="position: relative; padding-bottom: 65%; height: 0; overflow: hidden; border-radius: 8px;">
+              <!-- นำลิงก์ Embed ของฝั่งซ้ายมาใส่ตรง src ด้านล่างนี้ -->
+              <iframe loading="lazy" title="เอกสารและสไลด์ประกอบการนำเสนอ" src="https://docs.google.com/presentation/d/e/2PACX-1vRS7lWOsbmQoXFBBLlPTQH_RKzBth-HnsPPEIKogwLTM8VUDkNp563KkIIM_51TpvK7LbakQr6O2M5K/pubembed?start=false&loop=false&delayms=3000" 
+                      frameborder="0" width="100%" height="100%" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" 
+                      style="position: absolute; top: 0; left: 0;">
+              </iframe>
+            </div>
+    
+    <p class="result-desc">ได้สรุปแบบข้อความยาวๆ ไม่แบ่งหน้าสไลด์ให้ชัดเจน ข้อมูลอาจขาดความต่อเนื่องเวลาจัดหน้าจริง</p>
+  </div>
+
+  <!-- การ์ดล่าง: Context prompt -->
+          <div class="card glass" style="width: 100%;">
+            <span class="chip purple">● Context prompt</span>
+            <p class="prompt-text">"อ้างอิงจากข้อมูลใน Notebook นี้ ช่วยออกแบบเค้าโครง Presentation สำหรับนำเสนอผู้บริหาร ในหัวข้อ "Wireless Earbuds Market & Tech Trends"
+โดยรูปแบบการตอบในแต่ละสไลด์ให้แบ่งดังนี้: Slide Title Main Visual / Graphic Concept (คำแนะนำภาพที่ควรใช้) Key Bullet Points (ไม่เกิน 3 ข้อ ข้อละ 1 บรรทัด) "</p>
+    
+   <!-- กล่องแสดง Google Slides (ล่าง) -->
+            <div class="visual-box" style="position: relative; padding-bottom: 65%; height: 0; overflow: hidden; border-radius: 8px;">
+              <!-- นำลิงก์ Embed ของฝั่งขวามาใส่ตรง src ด้านล่างนี้ -->
+              <iframe loading="lazy" title="เอกสารและสไลด์ประกอบการนำเสนอ" src="https://docs.google.com/presentation/d/e/2PACX-1vQTLkIDZP2UKiskl89TL8qwtcteDfjzZU2eiY8eVN8HTONG_WUrLLpjLlIWC1U4TjfEuvg4Pb6sc0Tf/pubembed?start=false&loop=false&delayms=3000" 
+                      frameborder="0" width="100%" height="100%" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" 
+                      style="position: absolute; top: 0; left: 0;">
+              </iframe>
+            </div>
+            
+            <p class="result-desc">ได้โครงสร้างที่แบ่งเป็นหน้าชัดเจน ดึงประเด็นสำคัญมาเป็น Bullet points พร้อมนำไปวางในสไลด์ได้ทันที</p>
+          </div>
+          
+        </div>
+   <div class="reflect">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#22D9E6" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.5.4.6 1 .6 1.6V16h6v-.6c0-.6.1-1.2.6-1.6A6 6 0 0 0 12 3z"/></svg></span>
+      <p><strong>สะท้อนการเรียนรู้ —</strong> การระบุ format (IEEE), package ที่ต้องใช้, และโครงสร้างตารางที่ต้องการ ทำให้ได้เอกสารวิชาการที่ครบองค์ประกอบและคอมไพล์ได้จริงโดยไม่ error</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===================== 8. PDF / SLIDES EMBED HUB ===================== -->
+<section class="tool" id="pdf-hub">
+  <div class="wrap">
+    <div class="tool-head">
+      <span class="tool-num">06 — Presentation Slide & Document Zone</span>
+      <h2>PDF Presentation &amp; Slides Hub</h2>
+      <p>พื้นที่สำหรับใส่สไลด์นำเสนอหรือไฟล์เอกสาร PDF ประกอบการนำเสนอ</p>
+    </div>
+    <div class="document-actions"><a class="button primary" href="Blue White and Black Modern Tech Product Launch Presentation.pdf" target="_blank" rel="noopener">เปิด PDF ↗</a><a class="button" href="Blue White and Black Modern Tech Product Launch Presentation.pptx" download>ดาวน์โหลด PowerPoint ↓</a></div><div class="embed-box">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22D9E6" stroke-width="1.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+
+    <iframe loading="lazy" title="เอกสารและสไลด์ประกอบการนำเสนอ" src="Blue White and Black Modern Tech Product Launch Presentation.pdf" width="100%" height="600px"></iframe>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="f-brand">WIRELESS EARBUDS — AI WORKFLOW SHOWCASE</div>
+    <div class="f-meta">Mr. Hironobu Chaikasem · Computer Engineering and Artificial Intelligence</div>
+  </div>
+</footer>
+
+<script>
+  // ---------- Desmos Canvas Visualizer ----------
+  const canvas = document.getElementById('ancCanvas');
+  const ctx = canvas.getContext('2d');
+  const ampSlider = document.getElementById('ampSlider');
+  const freqSlider = document.getElementById('freqSlider');
+  const phaseSlider = document.getElementById('phaseSlider');
+  const ampVal = document.getElementById('ampVal');
+  const freqVal = document.getElementById('freqVal');
+  const phaseVal = document.getElementById('phaseVal');
+  const reductionVal = document.getElementById('reductionVal');
+
+  function drawWave(){
+    if(!canvas) return;
+    const W = canvas.width, H = canvas.height;
+    const A = parseFloat(ampSlider.value);
+    const w = parseFloat(freqSlider.value);
+    const phi = parseFloat(phaseSlider.value);
+    ampVal.textContent = A.toFixed(1);
+    freqVal.textContent = w.toFixed(1);
+    phaseVal.textContent = phi.toFixed(2);
+
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+
+    const xMax = 6.283 * 1.5;
+    const yScale = (H/2 - 20) / 2.2;
+    let maxN = 0, maxR = 0;
+    const pointsN=[], pointsA=[], pointsR=[];
+    for(let px=0; px<=W; px+=2){
+      const x = (px/W) * xMax - xMax/2;
+      const n = A * Math.sin(w * x);
+      const an = -A * Math.sin(w * x - phi);
+      const r = n + an;
+      maxN = Math.max(maxN, Math.abs(n));
+      maxR = Math.max(maxR, Math.abs(r));
+      pointsN.push([px, H/2 - n*yScale]);
+      pointsA.push([px, H/2 - an*yScale]);
+      pointsR.push([px, H/2 - r*yScale]);
+    }
+    function drawPath(pts, color, width){
+      ctx.beginPath();
+      pts.forEach(([x,y],idx)=> idx===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y));
+      ctx.strokeStyle = color; ctx.lineWidth = width; ctx.stroke();
+    }
+    drawPath(pointsN, 'rgba(34,217,230,0.85)', 1.6);
+    drawPath(pointsA, 'rgba(124,92,255,0.85)', 1.6);
+    drawPath(pointsR, '#ffffff', 2.4);
+
+    const reduction = maxN > 0 ? Math.max(0, Math.min(100, (1 - maxR/maxN) * 100)) : 100;
+    reductionVal.textContent = Math.round(reduction) + '%';
+  }
+  [ampSlider, freqSlider, phaseSlider].forEach(s => s.addEventListener('input', drawWave));
+  drawWave();
+</script>
+<a class="back-top button" href="#top" aria-label="กลับขึ้นด้านบน">↑</a><dialog id="image-dialog" aria-label="ภาพขยาย"><button class="button close-dialog" aria-label="ปิดภาพขยาย">ปิด ×</button><img alt=""><p></p></dialog><div class="toast" role="status" aria-live="polite"></div><script src="showcase.js"></script>
+</body>
+</html>

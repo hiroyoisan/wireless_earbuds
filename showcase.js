@@ -1,0 +1,16 @@
+const toast = document.querySelector('.toast');
+let toastTimer;
+function notify(message){toast.textContent=message;toast.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('visible'),2500)}
+document.querySelectorAll('.prompt-text').forEach(prompt=>{
+ const button=document.createElement('button');button.className='button copy-prompt';button.textContent='คัดลอก prompt ⧉';button.type='button';
+ button.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(prompt.textContent.trim());notify('คัดลอก prompt แล้ว')}catch{const range=document.createRange();range.selectNodeContents(prompt);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);notify('เลือกข้อความแล้ว กด Ctrl+C หรือคัดลอก')}});prompt.after(button);
+});
+const dialog=document.querySelector('#image-dialog');
+document.querySelectorAll('.visual-box img').forEach(img=>{img.loading='lazy';const button=document.createElement('button');button.className='image-zoom';button.setAttribute('aria-label','ขยายภาพ '+img.alt);img.replaceWith(button);button.append(img);button.addEventListener('click',()=>{dialog.querySelector('img').src=img.src;dialog.querySelector('img').alt=img.alt;dialog.querySelector('p').textContent=img.alt;dialog.showModal()})});
+dialog.querySelector('button').onclick=()=>dialog.close();dialog.addEventListener('click',event=>{if(event.target===dialog){const rect=dialog.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)dialog.close()}});
+const links=[...document.querySelectorAll('nav.links a')];const sections=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function updateScroll(){const total=document.documentElement.scrollHeight-innerHeight;document.querySelector('.reading-progress').style.transform=`scaleX(${total>0?scrollY/total:0})`;document.querySelector('.back-top').classList.toggle('visible',scrollY>650);let active=sections[0];sections.forEach(section=>{if(section.getBoundingClientRect().top<180)active=section});links.forEach(link=>{const on=link.hash==='#'+active.id;link.classList.toggle('active',on);if(on)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current')})}
+addEventListener('scroll',updateScroll,{passive:true});addEventListener('resize',updateScroll);updateScroll();
+const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('reveal');observer.unobserve(entry.target)}}),{threshold:.08});document.querySelectorAll('.tool-head,.card,.tool-grid a,.reflect').forEach(el=>observer.observe(el));
+const presets=document.createElement('div');presets.className='presets';[['หักล้างสมบูรณ์',0],['เฟสคลาดเคลื่อน',1],['รีเซ็ต',0]].forEach(([label,phase],index)=>{const button=document.createElement('button');button.className='button';button.textContent=label;button.onclick=()=>{phaseSlider.value=phase;if(index===2){ampSlider.value=1;freqSlider.value=4}drawWave()};presets.append(button)});document.querySelector('.anc-controls').append(presets);
+document.querySelectorAll('.ctrl').forEach(ctrl=>ctrl.querySelector('label').htmlFor=ctrl.querySelector('input').id);
